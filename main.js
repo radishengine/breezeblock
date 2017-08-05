@@ -19,7 +19,7 @@ requirejs(['domReady!'], function() {
       return Promise.resolve(oauthToken);
     }
     return new Promise(function(resolve, reject) {
-      window.gapi.auth.authorize({
+      gapi.auth.authorize({
           'client_id': clientId,
           'scope': scope,
           'immediate': false
@@ -36,13 +36,9 @@ requirejs(['domReady!'], function() {
     });
   }
 
-  // Use the Google API Loader script to load the google.picker script.
-  function loadPicker() {
-    gapi.load('auth');
-    gapi.load('picker', {'callback': function onPickerApiLoad() {
-      pickerApiLoaded = true;
-    }});
-  }
+  gapi.load('auth:picker', function() {
+    pickerApiLoaded = true;
+  });
 
   document.getElementById('pick_button').onclick = function createPicker() {
     if (!pickerApiLoaded) return;
