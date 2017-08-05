@@ -21,39 +21,44 @@
     var scope = ['https://www.googleapis.com/auth/drive'];
 
     var pickerApiLoaded = false;
-    var oauthToken = localStorage.getItem('google_oauth_token');
+    var _oauthToken;
+    function getOauthToken() {
+      return _oauthToken = _oauthToken || new Promise(function(resolve, reject) {
+        var oauthToken = localStorage.getItem('google_oauth_token');
+        if (oauthToken) {
+          resolve(oauthToken);
+          return;
+        }
+        gapi.load('auth', {'callback': function() {
+          window.gapi.auth.authorize({
+              'client_id': clientId,
+              'scope': scope,
+              'immediate': false
+            },
+            function handleAuthResult(authResult) {
+              if (!authResult || authResult.error) {
+                reject('auth error');
+                return;
+              }
+              var oauthToken = authResult.access_token;
+              localStorage.setItem('google_oauth_token', oauthToken);
+              resolve(oauthToken);
+            });
+        }});
+      });
+    }
 
     // Use the Google API Loader script to load the google.picker script.
     function loadPicker() {
-      if (!oauthToken) {
-        gapi.load('auth', {'callback': onAuthApiLoad});
-      }
-      gapi.load('picker', {'callback': onPickerApiLoad});
-    }
-
-    function onAuthApiLoad() {
-      window.gapi.auth.authorize({
-          'client_id': clientId,
-          'scope': scope,
-          'immediate': false
-        },
-        handleAuthResult);
-    }
-
-    function onPickerApiLoad() {
-      pickerApiLoaded = true;
-    }
-
-    function handleAuthResult(authResult) {
-      if (authResult && !authResult.error) {
-        oauthToken = authResult.access_token;
-        localStorage.setItem('google_oauth_token', oauthToken);
-      }
+      gapi.load('picker', {'callback': function onPickerApiLoad() {
+        pickerApiLoaded = true;
+      }});
     }
 
     // Create and render a Picker object for searching images.
     function createPicker() {
-      if (pickerApiLoaded && oauthToken) {
+      if (!pickerApiLoaded) return;
+      getOauthToken().then(function(oauthToken) {
         var view = new google.picker.DocsView();
         view.setMimeTypes("application/zip");
         view.setMode(google.picker.DocsViewMode.LIST);
@@ -72,7 +77,7 @@
             .setCallback(pickerCallback)
             .build();
          picker.setVisible(true);
-      }
+      });
     }
 
     function pickerCallback(data) {
@@ -86,7 +91,8 @@
       var title = document.getElementById('new_name');
       title = title.value || title.placeholder;
       console.log(title);
-      if (pickerApiLoaded && oauthToken) {
+      if (!pickerApiLoaded) return;
+      getOauthToken().then(function(oauthToken) {
         var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS);
         view.setIncludeFolders(true);
         view.setSelectFolderEnabled(true);
@@ -101,7 +107,7 @@
             .setCallback(newCallback)
             .build();
          picker.setVisible(true);
-      }
+      });
     }
     
     function newCallback(data) {
