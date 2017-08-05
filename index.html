@@ -54,19 +54,22 @@
     // Create and render a Picker object for searching images.
     function createPicker() {
       if (pickerApiLoaded && oauthToken) {
-        var view = new google.picker.View(google.picker.ViewId.DOCS);
-        view.setMimeTypes("image/png,image/jpeg,image/jpg");
-        var picker = new google.picker.PickerBuilder()
-            .enableFeature(google.picker.Feature.NAV_HIDDEN)
-            .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-            .setAppId(appId)
-            .setOAuthToken(oauthToken)
-            .addView(view)
-            .addView(new google.picker.DocsUploadView())
-            .setDeveloperKey(developerKey)
-            .setCallback(pickerCallback)
-            .build();
-         picker.setVisible(true);
+        document.getElementById('pick_button').disabled = false;
+        document.getElementById('pick_button').onclick = function() {
+          var view = new google.picker.View(google.picker.ViewId.DOCS);
+          view.setMimeTypes("image/png,image/jpeg,image/jpg");
+          var picker = new google.picker.PickerBuilder()
+              .enableFeature(google.picker.Feature.NAV_HIDDEN)
+              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+              .setAppId(appId)
+              .setOAuthToken(oauthToken)
+              .addView(view)
+              .addView(new google.picker.DocsUploadView())
+              .setDeveloperKey(developerKey)
+              .setCallback(pickerCallback)
+              .build();
+           picker.setVisible(true);
+        };
       }
     }
 
@@ -81,6 +84,7 @@
   </head>
   <body>
     <div id="result"></div>
+    <button id='pick_button' disabled>Pick</button>
 
     <!-- The Google API Loader script. -->
     <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
