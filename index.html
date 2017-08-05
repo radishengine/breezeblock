@@ -59,7 +59,12 @@
       if (pickerApiLoaded && oauthToken) {
         var view = new google.picker.View(google.picker.ViewId.DOCS);
         view.setMimeTypes("application/zip");
+        view.setMode(DocsViewMode.LIST);
+        view.setIncludeFolders(true);
+        view.setOwnedByMe(boolean | undefined);
         var picker = new google.picker.PickerBuilder()
+            .setTitle('Please select a Breezeblock project file')
+            .enableFeature(Feature.MINE_ONLY)
             .setAppId(appId)
             .setOAuthToken(oauthToken)
             .addView(view)
