@@ -62,13 +62,15 @@
         view.setMode(google.picker.DocsViewMode.LIST);
         view.setIncludeFolders(true);
         view.setOwnedByMe(true);
+        var ulview = new google.picker.DocsUploadView();
+        ulview.setIncludeFolders(true);
         var picker = new google.picker.PickerBuilder()
             .setTitle('Please select a Breezeblock project file')
             .enableFeature(google.picker.Feature.MINE_ONLY)
             .setAppId(appId)
             .setOAuthToken(oauthToken)
             .addView(view)
-            .addView(new google.picker.DocsUploadView())
+            .addView(ulview)
             .setDeveloperKey(developerKey)
             .setCallback(pickerCallback)
             .build();
