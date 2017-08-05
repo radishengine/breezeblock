@@ -21,35 +21,33 @@
     var scope = ['https://www.googleapis.com/auth/drive'];
 
     var pickerApiLoaded = false;
-    var _oauthToken;
     function getOauthToken() {
-      return _oauthToken = _oauthToken || new Promise(function(resolve, reject) {
-        var oauthToken = localStorage.getItem('google_oauth_token');
-        if (oauthToken) {
-          resolve(oauthToken);
-          return;
-        }
-        gapi.load('auth', {'callback': function() {
-          window.gapi.auth.authorize({
-              'client_id': clientId,
-              'scope': scope,
-              'immediate': false
-            },
-            function handleAuthResult(authResult) {
-              if (!authResult || authResult.error) {
-                reject('auth error');
-                return;
-              }
-              var oauthToken = authResult.access_token;
-              localStorage.setItem('google_oauth_token', oauthToken);
-              resolve(oauthToken);
-            });
+      var oauthToken = localStorage.getItem('google_oauth_token');
+      if (oauthToken) {
+        return Promise.resolve(oauthToken);
+      }
+      return new Promise(function(resolve, reject) {
+        window.gapi.auth.authorize({
+            'client_id': clientId,
+            'scope': scope,
+            'immediate': false
+          },
+          function handleAuthResult(authResult) {
+            if (!authResult || authResult.error) {
+              reject('auth error');
+              return;
+            }
+            var oauthToken = authResult.access_token;
+            localStorage.setItem('google_oauth_token', oauthToken);
+            resolve(oauthToken);
+          });
         }});
       });
     }
 
     // Use the Google API Loader script to load the google.picker script.
     function loadPicker() {
+      gapi.load('auth');
       gapi.load('picker', {'callback': function onPickerApiLoad() {
         pickerApiLoaded = true;
       }});
