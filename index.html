@@ -32,13 +32,12 @@
     function onAuthApiLoad() {
       document.getElementById('pick_button').disabled = false;
       document.getElementById('pick_button').onclick = function() {
-        window.gapi.auth.authorize(
-            {
-              'client_id': clientId,
-              'scope': scope,
-              'immediate': false
-            },
-            handleAuthResult);
+        window.gapi.auth.authorize({
+            'client_id': clientId,
+            'scope': scope,
+            'immediate': false
+          },
+          handleAuthResult);
       };
     }
 
@@ -84,11 +83,43 @@
         console.log(fileId, oauthToken);
       }
     }
+      
+    function createNew() {
+      var title = document.getElementById('new_name');
+      title = title.value || title.placeholder;
+      console.log(title);
+      if (pickerApiLoaded && oauthToken) {
+        var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS);
+        view.setIncludeFolders(true);
+        view.setSelectFolderEnabled(true);
+        view.setMode(google.picker.DocsViewMode.LIST);
+        var picker = new google.picker.PickerBuilder()
+            .setTitle('Please choose a location to save the new project')
+            .enableFeature(google.picker.Feature.MINE_ONLY)
+            .setAppId(appId)
+            .setOAuthToken(oauthToken)
+            .addView(view)
+            .setDeveloperKey(developerKey)
+            .setCallback(newCallback)
+            .build();
+         picker.setVisible(true);
+      }
+    }
+    
+    function newCallback(data) {
+      if (data.action == google.picker.Action.PICKED) {
+        var folderId = data.docs[0].id;
+        console.log(folderId);
+      }
+    }
+      
     </script>
   </head>
   <body>
     <div id="result"></div>
-    <button id='pick_button' disabled>Pick</button>
+    <button id='pick_button' disabled>Load from Google Drive</button>
+    <button onclick='createNew()'>Create New:</button>
+    <input type='text' id='new_name' placeholder='Untitled Breezeblock'>
 
     <!-- The Google API Loader script. -->
     <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
