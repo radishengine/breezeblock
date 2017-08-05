@@ -3,126 +3,13 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Google Picker Example</title>
-
-    <script type="text/javascript">
-
-    // The Browser API key obtained from the Google API Console.
-    // Replace with your own Browser API key, or your own key.
-    var developerKey = 'AIzaSyD__sT53UZduSvg5E2rH6L8x-dPzimBV7k';
-
-    // The Client ID obtained from the Google API Console. Replace with your own Client ID.
-    var clientId = "908558406138-rmva8p8ubsjppi6fr7l9cks4mlpi4hs1.apps.googleusercontent.com";
-
-    // Replace with your own project number from console.developers.google.com.
-    // See "Project number" under "IAM & Admin" > "Settings"
-    var appId = "908558406138";
-
-    // Scope to use to access user's Drive items.
-    var scope = ['https://www.googleapis.com/auth/drive'];
-
-    var pickerApiLoaded = false;
-    function getOauthToken() {
-      var oauthToken = localStorage.getItem('google_oauth_token');
-      if (oauthToken) {
-        return Promise.resolve(oauthToken);
-      }
-      return new Promise(function(resolve, reject) {
-        window.gapi.auth.authorize({
-            'client_id': clientId,
-            'scope': scope,
-            'immediate': false
-          },
-          function handleAuthResult(authResult) {
-            if (!authResult || authResult.error) {
-              reject('auth error');
-              return;
-            }
-            var oauthToken = authResult.access_token;
-            localStorage.setItem('google_oauth_token', oauthToken);
-            resolve(oauthToken);
-          });
-      });
-    }
-
-    // Use the Google API Loader script to load the google.picker script.
-    function loadPicker() {
-      gapi.load('auth');
-      gapi.load('picker', {'callback': function onPickerApiLoad() {
-        pickerApiLoaded = true;
-      }});
-    }
-
-    // Create and render a Picker object for searching images.
-    function createPicker() {
-      if (!pickerApiLoaded) return;
-      getOauthToken().then(function(oauthToken) {
-        var view = new google.picker.DocsView();
-        view.setMimeTypes("application/zip");
-        view.setMode(google.picker.DocsViewMode.LIST);
-        view.setIncludeFolders(true);
-        view.setOwnedByMe(true);
-        var ulview = new google.picker.DocsUploadView();
-        ulview.setIncludeFolders(true);
-        var picker = new google.picker.PickerBuilder()
-            .setTitle('Please select a Breezeblock project file')
-            .enableFeature(google.picker.Feature.MINE_ONLY)
-            .setAppId(appId)
-            .setOAuthToken(oauthToken)
-            .addView(view)
-            .addView(ulview)
-            .setDeveloperKey(developerKey)
-            .setCallback(pickerCallback)
-            .build();
-         picker.setVisible(true);
-      });
-    }
-
-    function pickerCallback(data) {
-      if (data.action == google.picker.Action.PICKED) {
-        var fileId = data.docs[0].id;
-        console.log(fileId, oauthToken);
-      }
-    }
-      
-    function createNew() {
-      var title = document.getElementById('new_name');
-      title = title.value || title.placeholder;
-      console.log(title);
-      if (!pickerApiLoaded) return;
-      getOauthToken().then(function(oauthToken) {
-        var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS);
-        view.setIncludeFolders(true);
-        view.setSelectFolderEnabled(true);
-        view.setMode(google.picker.DocsViewMode.LIST);
-        var picker = new google.picker.PickerBuilder()
-            .setTitle('Please choose a location to save the new project')
-            .enableFeature(google.picker.Feature.MINE_ONLY)
-            .setAppId(appId)
-            .setOAuthToken(oauthToken)
-            .addView(view)
-            .setDeveloperKey(developerKey)
-            .setCallback(newCallback)
-            .build();
-         picker.setVisible(true);
-      });
-    }
-    
-    function newCallback(data) {
-      if (data.action == google.picker.Action.PICKED) {
-        var folderId = data.docs[0].id;
-        console.log(folderId);
-      }
-    }
-      
-    </script>
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+    <script type="text/javascript" src='require.js' data-main='main'></script>
   </head>
   <body>
     <div id="result"></div>
-    <button id='pick_button' onclick='createPicker()'>Load from Google Drive</button>
-    <button onclick='createNew()'>Create New:</button>
+    <button id='pick_button'>Load from Google Drive</button>
+    <button id='new_button'>Create New:</button>
     <input type='text' id='new_name' placeholder='Untitled Breezeblock'>
-
-    <!-- The Google API Loader script. -->
-    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
   </body>
 </html>
