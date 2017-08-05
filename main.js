@@ -14,7 +14,7 @@ requirejs(['domReady!'], function() {
 
   var pickerApiLoaded = false;
   function getOauthToken() {
-    var oauthToken = localStorage.getItem('google_oauth_token');
+    var oauthToken; // = localStorage.getItem('google_oauth_token');
     if (oauthToken) {
       return Promise.resolve(oauthToken);
     }
@@ -22,7 +22,7 @@ requirejs(['domReady!'], function() {
       gapi.auth.authorize({
           'client_id': clientId,
           'scope': scope,
-          'immediate': false
+          'immediate': false,
         },
         function handleAuthResult(authResult) {
           if (!authResult || authResult.error) {
@@ -30,7 +30,7 @@ requirejs(['domReady!'], function() {
             return;
           }
           var oauthToken = authResult.access_token;
-          localStorage.setItem('google_oauth_token', oauthToken);
+          //localStorage.setItem('google_oauth_token', oauthToken);
           resolve(oauthToken);
         });
     });
