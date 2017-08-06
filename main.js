@@ -7,6 +7,49 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
 
   'use strict';
   
+  var gapi = window.gapi;
+  
+  var CLIENT_ID = "908558406138-rmva8p8ubsjppi6fr7l9cks4mlpi4hs1.apps.googleusercontent.com";
+  var DISCOVERY_DOCS = [
+    "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+  ];
+  var SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+  ].join(' ');
+  
+  function clearActive() {
+    var active = document.querySelectorAll('body > .active');
+    for (var i = 0; i < active.length; i++) {
+      active[i].classList.remove('active');
+    }
+  }
+  
+  function updateSigninStatus(isSignedIn) {
+    if (isSignedIn) {
+      document.body.classList.add('logged-in');
+    }
+    else {
+      clearActive();
+      document.getElementById('login').classList.add('active');
+      document.body.classList.remove('logged-in');
+    }
+  }
+  
+  gapi.client.init({
+    discoveryDocs: DISCOVERY_DOCS,
+    clientId: CLIENT_ID,
+    scope: SCOPES,
+  }).then(function() {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    document.getElementById('login-button').onclick = function handleAuthClick(event) {
+      gapi.auth2.getAuthInstance().signIn();
+    };
+  });  
+  
+  /*
   var developerKey = 'AIzaSyD__sT53UZduSvg5E2rH6L8x-dPzimBV7k';
   var clientId = "908558406138-rmva8p8ubsjppi6fr7l9cks4mlpi4hs1.apps.googleusercontent.com";
   var appId = "908558406138";
@@ -16,10 +59,6 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
   var authorizeButton = document.getElementById('authorize-button');
   var signoutButton = document.getElementById('signout-button');
 
-  /**
-   *  Initializes the API client library and sets up sign-in state
-   *  listeners.
-   */
   gapi.client.init({
     discoveryDocs: DISCOVERY_DOCS,
     clientId: clientId,
@@ -37,10 +76,6 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     console.error(reason);
   });
 
-  /**
-   *  Called when the signed in status changes, to update the UI
-   *  appropriately. After a sign-in, the API is called.
-   */
   function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
       authorizeButton.style.display = 'none';
@@ -52,35 +87,20 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     }
   }
 
-  /**
-   *  Sign in the user upon button click.
-   */
   function handleAuthClick(event) {
     gapi.auth2.getAuthInstance().signIn();
   }
 
-  /**
-   *  Sign out the user upon button click.
-   */
   function handleSignoutClick(event) {
     gapi.auth2.getAuthInstance().signOut();
   }
 
-  /**
-   * Append a pre element to the body containing the given message
-   * as its text node. Used to display the results of the API call.
-   *
-   * @param {string} message Text to be placed in pre element.
-   */
   function appendPre(message) {
     var pre = document.getElementById('content');
     var textContent = document.createTextNode(message + '\n');
     pre.appendChild(textContent);
   }
 
-  /**
-   * Print files.
-   */
   function listFiles() {
     gapi.client.drive.files.list({
       'pageSize': 10,
@@ -98,5 +118,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
       }
     });
   }
+  
+  */
   
 });
