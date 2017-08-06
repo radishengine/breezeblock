@@ -3,7 +3,7 @@ requirejs.config({
   timeout: 0,
 });
 
-requirejs(['domReady!'], function() {
+requirejs(['domReady!', 'gapi!auth:picker'], function() {
 
   'use strict';
   
@@ -12,7 +12,6 @@ requirejs(['domReady!'], function() {
   var appId = "908558406138";
   var scope = ['https://www.googleapis.com/auth/drive'];
 
-  var pickerApiLoaded = false;
   function getOauthToken() {
     var oauthToken; // = localStorage.getItem('google_oauth_token');
     if (oauthToken) {
@@ -36,12 +35,7 @@ requirejs(['domReady!'], function() {
     });
   }
 
-  gapi.load('auth:picker', function() {
-    pickerApiLoaded = true;
-  });
-
   document.getElementById('pick_button').onclick = function createPicker() {
-    if (!pickerApiLoaded) return;
     getOauthToken().then(function(oauthToken) {
       var view = new google.picker.DocsView();
       view.setMimeTypes("application/zip");
@@ -75,7 +69,6 @@ requirejs(['domReady!'], function() {
     var title = document.getElementById('new_name');
     title = title.value || title.placeholder;
     console.log(title);
-    if (!pickerApiLoaded) return;
     getOauthToken().then(function(oauthToken) {
       var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS);
       view.setIncludeFolders(true);
