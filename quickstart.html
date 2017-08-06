@@ -102,12 +102,13 @@
         gapi.client.drive.files.list({
           // 'pageSize': 10,
           orderBy: 'modifiedTime desc',
-          q: "mimeType='application/zip' or mimeType='application/x-zip-compressed'",
+          q: "(mimeType='application/zip' or mimeType='application/x-zip-compressed') and trashed=false",
           //q: "name contains '.zip'",
-          'fields': "nextPageToken, files(id, name, mimeType)",
+          'fields': "nextPageToken, files(id, name, mimeType, owners)",
         }).then(function(response) {
           appendPre('Files:');
           var files = response.result.files;
+          console.log(files);
           if (files && files.length > 0) {
             for (var i = 0; i < files.length; i++) {
               var file = files[i];
