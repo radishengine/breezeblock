@@ -3,7 +3,7 @@ requirejs.config({
   timeout: 0,
 });
 
-requirejs(['domReady!', 'gapi!auth:picker'], function() {
+requirejs(['domReady!', 'gapi!client:auth2'], function() {
 
   'use strict';
   
@@ -11,87 +11,89 @@ requirejs(['domReady!', 'gapi!auth:picker'], function() {
   var clientId = "908558406138-rmva8p8ubsjppi6fr7l9cks4mlpi4hs1.apps.googleusercontent.com";
   var appId = "908558406138";
   var scope = ['https://www.googleapis.com/auth/drive'];
+  var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-  function getOauthToken() {
-    var oauthToken; // = localStorage.getItem('google_oauth_token');
-    if (oauthToken) {
-      return Promise.resolve(oauthToken);
-    }
-    return new Promise(function(resolve, reject) {
-      gapi.auth.authorize({
-          'client_id': clientId,
-          'scope': scope,
-          'immediate': false,
-        },
-        function handleAuthResult(authResult) {
-          if (!authResult || authResult.error) {
-            reject('auth error');
-            return;
-          }
-          var oauthToken = authResult.access_token;
-          //localStorage.setItem('google_oauth_token', oauthToken);
-          resolve(oauthToken);
-        });
-    });
-  }
+  var authorizeButton = document.getElementById('authorize-button');
+  var signoutButton = document.getElementById('signout-button');
 
-  document.getElementById('pick_button').onclick = function createPicker() {
-    getOauthToken().then(function(oauthToken) {
-      var view = new google.picker.DocsView();
-      view.setMimeTypes("application/zip");
-      view.setMode(google.picker.DocsViewMode.LIST);
-      view.setIncludeFolders(true);
-      view.setOwnedByMe(true);
-      var ulview = new google.picker.DocsUploadView();
-      ulview.setIncludeFolders(true);
-      var picker = new google.picker.PickerBuilder()
-          .setTitle('Please select a Breezeblock project file')
-          .enableFeature(google.picker.Feature.MINE_ONLY)
-          .setAppId(appId)
-          .setOAuthToken(oauthToken)
-          .addView(view)
-          .addView(ulview)
-          .setDeveloperKey(developerKey)
-          .setCallback(pickerCallback)
-          .build();
-       picker.setVisible(true);
-    });
-  };
+  /**
+   *  Initializes the API client library and sets up sign-in state
+   *  listeners.
+   */
+  gapi.client.init({
+    discoveryDocs: DISCOVERY_DOCS,
+    clientId: clientId,
+    scope: scope,
+  }).then(function() {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-  function pickerCallback(data) {
-    if (data.action == google.picker.Action.PICKED) {
-      var fileId = data.docs[0].id;
-      console.log(fileId, oauthToken);
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    authorizeButton.onclick = handleAuthClick;
+    signoutButton.onclick = handleSignoutClick;
+  });
+
+  /**
+   *  Called when the signed in status changes, to update the UI
+   *  appropriately. After a sign-in, the API is called.
+   */
+  function updateSigninStatus(isSignedIn) {
+    if (isSignedIn) {
+      authorizeButton.style.display = 'none';
+      signoutButton.style.display = 'block';
+      listFiles();
+    } else {
+      authorizeButton.style.display = 'block';
+      signoutButton.style.display = 'none';
     }
   }
 
-  document.getElementById('new_button').onclick = function createNew() {
-    var title = document.getElementById('new_name');
-    title = title.value || title.placeholder;
-    console.log(title);
-    getOauthToken().then(function(oauthToken) {
-      var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS);
-      view.setIncludeFolders(true);
-      view.setSelectFolderEnabled(true);
-      view.setMode(google.picker.DocsViewMode.LIST);
-      var picker = new google.picker.PickerBuilder()
-          .setTitle('Please choose a location to save the new project')
-          .enableFeature(google.picker.Feature.MINE_ONLY)
-          .setAppId(appId)
-          .setOAuthToken(oauthToken)
-          .addView(view)
-          .setDeveloperKey(developerKey)
-          .setCallback(newCallback)
-          .build();
-       picker.setVisible(true);
-    });
-  };
-
-  function newCallback(data) {
-    if (data.action == google.picker.Action.PICKED) {
-      var folderId = data.docs[0].id;
-      console.log(folderId);
-    }
+  /**
+   *  Sign in the user upon button click.
+   */
+  function handleAuthClick(event) {
+    gapi.auth2.getAuthInstance().signIn();
   }
 
+  /**
+   *  Sign out the user upon button click.
+   */
+  function handleSignoutClick(event) {
+    gapi.auth2.getAuthInstance().signOut();
+  }
+
+  /**
+   * Append a pre element to the body containing the given message
+   * as its text node. Used to display the results of the API call.
+   *
+   * @param {string} message Text to be placed in pre element.
+   */
+  function appendPre(message) {
+    var pre = document.getElementById('content');
+    var textContent = document.createTextNode(message + '\n');
+    pre.appendChild(textContent);
+  }
+
+  /**
+   * Print files.
+   */
+  function listFiles() {
+    gapi.client.drive.files.list({
+      'pageSize': 10,
+      'fields': "nextPageToken, files(id, name)"
+    }).then(function(response) {
+      appendPre('Files:');
+      var files = response.result.files;
+      if (files && files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          appendPre(file.name + ' (' + file.id + ')');
+        }
+      } else {
+        appendPre('No files found.');
+      }
+    });
+  }
+  
 });
