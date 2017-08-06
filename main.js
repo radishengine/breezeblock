@@ -32,6 +32,9 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     authorizeButton.onclick = handleAuthClick;
     signoutButton.onclick = handleSignoutClick;
+  },
+  function(reason) {
+    console.error(reason);
   });
 
   /**
