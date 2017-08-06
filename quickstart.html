@@ -102,6 +102,7 @@
         gapi.client.drive.files.list({
           // 'pageSize': 10,
           orderBy: 'modifiedTime desc',
+          corpora: 'user',
           q: "(mimeType='application/zip' or mimeType='application/x-zip-compressed') and trashed=false",
           //q: "name contains '.zip'",
           'fields': "nextPageToken, files(id, name, mimeType, permissions)",
