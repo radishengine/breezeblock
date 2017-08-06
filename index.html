@@ -27,9 +27,13 @@
         height: 100%;
         background: white;
       }
-      body > noscript, body:not(.logged-in) > #login {
+      body > .active, body > noscript {
         opacity: 1;
         visibility: visible;
+      }
+      body > .active ~ * {
+        opacity: 0;
+        visibility: hidden;
       }
     </style>
   </head>
