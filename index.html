@@ -14,9 +14,12 @@
         overflow: hidden;
         font-family: sans-serif;
         background: black;
+        padding: 0;
+        margin: 0;
       }
       body > * {
         opacity: 0;
+        visibility: hidden;
         transition: opacity .25s ease-in-out;
         position: fixed;
         overflow: auto;
@@ -24,11 +27,9 @@
         height: 100%;
         background: white;
       }
-      body > noscript {
+      body > noscript, body:not(.logged-in) > #login {
         opacity: 1;
-      }
-      body:not(.logged-in) > #login {
-        opacity: 1;
+        visibility: visible;
       }
     </style>
   </head>
