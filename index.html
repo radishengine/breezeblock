@@ -7,9 +7,12 @@
     <script type="text/javascript" src='require.js' data-main='main'></script>
   </head>
   <body>
-    <div id="result"></div>
-    <button id='pick_button'>Load from Google Drive</button>
-    <button id='new_button'>Create New:</button>
-    <input type='text' id='new_name' placeholder='Untitled Breezeblock'>
+    <p>Drive API Quickstart</p>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <pre id="content"></pre>
   </body>
 </html>
