@@ -104,7 +104,7 @@
           orderBy: 'modifiedTime desc',
           q: "(mimeType='application/zip' or mimeType='application/x-zip-compressed') and trashed=false",
           //q: "name contains '.zip'",
-          'fields': "nextPageToken, files(id, name, mimeType, owners)",
+          'fields': "nextPageToken, files(id, name, mimeType, writers)",
         }).then(function(response) {
           appendPre('Files:');
           var files = response.result.files;
