@@ -56,9 +56,6 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     updateUser(gapi.auth2.getAuthInstance().currentUser.get());
-    document.getElementById('login-button').onclick = function handleAuthClick(event) {
-      gapi.auth2.getAuthInstance().signIn();
-    };
     gapi.client.drive.about.get().then(function(response) {
       console.log(response);
     });
@@ -135,5 +132,13 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
   }
   
   */
+  
+  document.getElementById('sign-in-button').onclick = function() {
+    gapi.auth2.getAuthInstance().signIn();
+  };
+  
+  document.getElementById('sign-out-button').onclick = function() {
+    gapi.auth2.getAuthInstance().signOut();
+  };
   
 });
