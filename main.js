@@ -56,7 +56,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     updateUser(gapi.auth2.getAuthInstance().currentUser.get());
-    gapi.client.drive.about.get().then(function(response) {
+    gapi.client.drive.about.get({}).then(function(response) {
       console.log(response);
     });
   });
