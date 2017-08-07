@@ -74,11 +74,11 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
       var byId = Object.create(null);
       response.result.files.forEach(function(folder) {
         byId[folder.id] = folder;
-        folder.childFolders = [];
       });
       response.result.files.forEach(function(folder) {
         (folder.parents || []).forEach(function(parentId) {
           var parent = byId[parentId];
+          parent.childFolders = parent.childFolders || [];
           parent.childFolders.push(folder);
         });
       });
