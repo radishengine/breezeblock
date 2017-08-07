@@ -71,7 +71,21 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
       fields: 'nextPageToken, files(id, name, parents)',
       pageSize: 1000,
     }).then(function(response) {
-      console.log(response);
+      var byId = Object.create(null);
+      response.result.files.forEach(function(folder) {
+        byId[folder.id] = folder;
+        folder.childFolders = [];
+      });
+      response.result.files.forEach(function(folder) {
+        (folder.parents || []).forEach(function(parentId) {
+          var parent = byId[parentId];
+          parent.childFolders.push(folder);
+        });
+      });
+      var roots = response.result.files.filter(function(folder) {
+        return (folder.parents || []).length === 0;
+      });
+      console.log(roots);
     });
   });
   
