@@ -40,9 +40,20 @@
         opacity: 0;
         visibility: hidden;
       }
+      #top-bar {
+        z-index: 1000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
     </style>
   </head>
   <body>
+    <div id='top-bar'>
+      <button id='sign-in-button'>Sign In</button>
+      <button id='sign-out-button'>Sign Out</button>
+    </div>
     <noscript>
       <h1>JavaScript Required</h1>
       This application requires JavaScript.
