@@ -35,6 +35,16 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     }
   }
   
+  function updateUser(user) {
+    console.log(user.getId());
+    var basicProfile = user.getBasicProfile();
+    console.log(basicProfile.getId());
+    console.log(basicProfile.getName());
+    console.log(basicProfile.getGivenName());
+    console.log(basicProfile.getFamilyName());
+    console.log(basicProfile.getEmail());
+  }
+  
   gapi.client.init({
     discoveryDocs: DISCOVERY_DOCS,
     clientId: CLIENT_ID,
@@ -42,6 +52,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
   }).then(function() {
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    gapi.auth2.getAuthInstance().currentUser.listen(updateUser);
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     document.getElementById('login-button').onclick = function handleAuthClick(event) {
