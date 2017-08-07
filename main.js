@@ -60,11 +60,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
       fields: [
         'user(displayName, photoLink, me, permissionId, emailAddress)',
         'storageQuota(limit, usage)',
-        'importFormats',
-        'exportFormats',
-        'maxImportSizes',
         'maxUploadSize',
-        'folderColorPalette',
       ].join(', '),
     }).then(function(response) {
       console.log(response);
