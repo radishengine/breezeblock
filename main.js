@@ -55,6 +55,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     gapi.auth2.getAuthInstance().currentUser.listen(updateUser);
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    updateUser(gapi.auth2.getAuthInstance().currentUser.get());
     document.getElementById('login-button').onclick = function handleAuthClick(event) {
       gapi.auth2.getAuthInstance().signIn();
     };
