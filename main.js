@@ -59,7 +59,10 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     document.getElementById('login-button').onclick = function handleAuthClick(event) {
       gapi.auth2.getAuthInstance().signIn();
     };
-  });  
+    gapi.client.drive.about.get().then(function(response) {
+      console.log(response);
+    });
+  });
   
   /*
   var developerKey = 'AIzaSyD__sT53UZduSvg5E2rH6L8x-dPzimBV7k';
