@@ -68,7 +68,7 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     gapi.client.drive.files.list({
       q: "mimeType='application/vnd.google-apps.folder'",
       orderBy: 'createdTime',
-      fields: 'nextPageToken, files(id, name)',
+      fields: 'nextPageToken, files(id, name, parents)',
       pageSize: 1000,
     }).then(function(response) {
       console.log(response);
