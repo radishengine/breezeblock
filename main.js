@@ -65,27 +65,35 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     }).then(function(response) {
       console.log(response);
     });
-    gapi.client.drive.files.list({
-      q: "mimeType='application/vnd.google-apps.folder'",
-      orderBy: 'createdTime',
-      fields: 'nextPageToken, files(id, name, parents)',
-      pageSize: 1000,
-    }).then(function(response) {
-      var byId = Object.create(null);
-      response.result.files.forEach(function(folder) {
-        byId[folder.id] = folder;
-      });
-      response.result.files.forEach(function(folder) {
-        (folder.parents || []).forEach(function(parentId) {
-          var parent = byId[parentId];
-          parent.childFolders = parent.childFolders || [];
-          parent.childFolders.push(folder);
+    gapi.client.drive.files.get({
+      fileId: 'root',
+      fields: 'id',
+    })
+    .then(function(response) {
+      var rootId = response.result.id;
+      console.log(rootId);
+      gapi.client.drive.files.list({
+        q: "mimeType='application/vnd.google-apps.folder'",
+        orderBy: 'createdTime',
+        fields: 'nextPageToken, files(id, name, parents)',
+        pageSize: 1000,
+      }).then(function(response) {
+        var byId = Object.create(null);
+        response.result.files.forEach(function(folder) {
+          byId[folder.id] = folder;
         });
+        response.result.files.forEach(function(folder) {
+          (folder.parents || []).forEach(function(parentId) {
+            var parent = byId[parentId];
+            parent.childFolders = parent.childFolders || [];
+            parent.childFolders.push(folder);
+          });
+        });
+        var roots = response.result.files.filter(function(folder) {
+          return (folder.parents || []).length === 0;
+        });
+        console.log(roots);
       });
-      var roots = response.result.files.filter(function(folder) {
-        return (folder.parents || []).length === 0;
-      });
-      console.log(roots);
     });
   });
   
