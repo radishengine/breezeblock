@@ -94,7 +94,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
           folders = values[1];
       var root = folders[rootId] = {name:'(ROOT)', parents:[]};
       for (var folderId in folders) {
-        var folder in folders[folderId];
+        var folder = folders[folderId];
         if (folder.parents) {
           folder.parents.forEach(function(parentId) {
             var parent = folders[parentId];
