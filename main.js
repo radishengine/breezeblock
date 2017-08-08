@@ -3,7 +3,7 @@ requirejs.config({
   timeout: 0,
 });
 
-requirejs(['domReady!', 'gapi!client:auth2'], function() {
+requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
 
   'use strict';
   
@@ -49,7 +49,9 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
     discoveryDocs: DISCOVERY_DOCS,
     clientId: CLIENT_ID,
     scope: SCOPES,
-  }).then(function() {
+  })
+  .then(function() {
+    document.body.classList.remove('loading');
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
     gapi.auth2.getAuthInstance().currentUser.listen(updateUser);
