@@ -79,20 +79,22 @@ requirejs(['domReady!', 'gapi!client:auth2'], function() {
         pageSize: 1000,
       }).then(function(response) {
         var byId = Object.create(null);
+        var root = byId[rootId] = {id:'root', name:'(ROOT)'};
         response.result.files.forEach(function(folder) {
           byId[folder.id] = folder;
         });
         response.result.files.forEach(function(folder) {
           (folder.parents || []).forEach(function(parentId) {
             var parent = byId[parentId];
+            if (!parent) {
+              console.log('unknown parent:', parentId);
+              return;
+            }
             parent.childFolders = parent.childFolders || [];
             parent.childFolders.push(folder);
           });
         });
-        var roots = response.result.files.filter(function(folder) {
-          return (folder.parents || []).length === 0;
-        });
-        console.log(roots);
+        console.log(root);
       });
     });
   });
