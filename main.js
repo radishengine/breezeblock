@@ -66,10 +66,10 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
       ].join(', '),
     }).then(function(response) {
       console.log(response);
-    });
+    });z
     gapi.client.drive.files.get({
       fileId: 'root',
-      fields: 'id',
+      fields: 'id, mimeType',
     })
     .then(function(response) {
       var rootId = response.result.id;
