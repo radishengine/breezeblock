@@ -58,44 +58,65 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     updateUser(gapi.auth2.getAuthInstance().currentUser.get());
-    gapi.client.drive.about.get({
+    var gotAbout = gapi.client.drive.about.get({
       fields: [
         'user(displayName, photoLink, me, permissionId, emailAddress)',
         'storageQuota(limit, usage)',
         'maxUploadSize',
       ].join(', '),
     }).then(function(response) {
-      console.log(response);
+      return response.result;
     });
-    gapi.client.drive.files.get({
+    var gotRootId = gapi.client.drive.files.get({
       fileId: 'root',
-      fields: 'id, mimeType',
+      fields: 'id',
     })
     .then(function(response) {
-      var rootId = response.result.id;
-      console.log(rootId);
-      gapi.client.drive.files.list({
-        q: "mimeType='application/vnd.google-apps.folder'",
-        orderBy: 'createdTime',
-        fields: 'nextPageToken, files(id, name, parents)',
-        pageSize: 1000,
-      }).then(function(response) {
-        var byId = Object.create(null);
-        var root = byId[rootId] = {id:'root', name:'(ROOT)'};
-        response.result.files.forEach(function(folder) {
-          byId[folder.id] = folder;
-        });
-        response.result.files.forEach(function(folder) {
-          (folder.parents || []).forEach(function(parentId) {
-            var parent = byId[parentId];
+      return response.result.id;
+    });
+    var gotFolders = gapi.client.drive.files.list({
+      q: "mimeType='application/vnd.google-apps.folder'",
+      orderBy: 'createdTime',
+      fields: 'nextPageToken, files(id, name, parents)',
+      pageSize: 1000,
+    }).then(function(response) {
+      var info = Object.create(null);
+      response.result.files.forEach(function(folder) {
+        info[folder.id] = {name:folder.name, parents:folder.parents||[]};
+      });
+      return info;
+    });
+    var gotFolderTree = Promise.all([
+      gotRootId,
+      gotFolders,
+    ]).then(function(values) {
+      var rootId = values[0],
+          folders = values[1];
+      var root = folders[rootId] = {name:'(ROOT)', parents:[]};
+      for (var folderId in folders) {
+        var folder in folders[folderId];
+        if (folder.parents) {
+          folder.parents.forEach(function(parentId) {
+            var parent = folders[parentId];
             if (!parent) {
-              console.log('unknown parent:', parentId);
+              console.warn('unknown parent id: ' + parentId);
               return;
             }
-            parent.childFolders = parent.childFolders || [];
-            parent.childFolders.push(folder);
+            parent.children = parent.children || [];
+            parent.children.push(folderId);
           });
-        });
+          delete folder.parents;
+        }
+      }
+      return root;
+    });
+    Promise.all([
+      gotAbout,
+      gotFolderTree,
+    ]).then(function(values) {
+        var about = values[0],
+            root = values[1];
+        console.log(about);
         console.log(root);
       });
     });
