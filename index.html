@@ -58,9 +58,12 @@
         background: blue;
         color: white;
       }
+      body.loading > #top-bar {
+        display: none;
+      }
     </style>
   </head>
-  <body>
+  <body class='loading'>
     <div id='top-bar'>
       <button id='sign-in-button'>Sign In</button>
       <button id='sign-out-button'>Sign Out</button>
