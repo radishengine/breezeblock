@@ -114,11 +114,10 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
       gotAbout,
       gotFolderTree,
     ]).then(function(values) {
-        var about = values[0],
-            root = values[1];
-        console.log(about);
-        console.log(root);
-      });
+      var about = values[0],
+          root = values[1];
+      console.log(about);
+      console.log(root);
     });
   });
   
