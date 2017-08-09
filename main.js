@@ -107,7 +107,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
       pageSize: 1000,
       fields: [
         "nextPageToken",
-        "files(id, name, parents)",
+        "files(id, name, parents, headRevisionId)",
       ].join(', '),
       orderBy: "modifiedTime desc",
       q: [
@@ -121,6 +121,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
         var link = document.createElement('A');
         link.href = '#/' + file.id + '/';
         link.innerText = file.name;
+        console.log(file.headRevisionId);
         div.appendChild(link);
         listElement.appendChild(div);
       });
