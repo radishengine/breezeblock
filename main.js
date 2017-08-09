@@ -117,10 +117,12 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
       ].join(' or '),
     }).then(function(response) {
       response.result.files.forEach(function(file) {
+        var div = document.createElement('DIV');
         var link = document.createElement('A');
         link.href = '#/' + file.id + '/';
         link.innerText = file.name;
-        listElement.appendChild(link);
+        div.appendChild(link);
+        listElement.appendChild(div);
       });
     });
     document.body.appendChild(listElement);
