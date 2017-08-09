@@ -17,20 +17,19 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     'https://www.googleapis.com/auth/drive',
   ].join(' ');
   
-  function clearActive() {
-    var active = document.querySelectorAll('body > .active');
-    for (var i = 0; i < active.length; i++) {
-      active[i].classList.remove('active');
-    }
-  }
+  document.getElementById('sign-in-button').onclick = function() {
+    gapi.auth2.getAuthInstance().signIn();
+  };
+  
+  document.getElementById('sign-out-button').onclick = function() {
+    gapi.auth2.getAuthInstance().signOut();
+  };
   
   function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
       document.body.classList.add('logged-in');
     }
     else {
-      clearActive();
-      document.getElementById('login').classList.add('active');
       document.body.classList.remove('logged-in');
     }
   }
@@ -49,8 +48,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     discoveryDocs: DISCOVERY_DOCS,
     clientId: CLIENT_ID,
     scope: SCOPES,
-  })
-  .then(function() {
+  }).then(function() {
     document.body.classList.remove('loading');
     // Listen for sign-in state changes.
     gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
@@ -70,8 +68,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     var gotRootId = gapi.client.drive.files.get({
       fileId: 'root',
       fields: 'id',
-    })
-    .then(function(response) {
+    }).then(function(response) {
       return response.result.id;
     });
     var gotFolders = gapi.client.drive.files.list({
@@ -192,13 +189,5 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
   }
   
   */
-  
-  document.getElementById('sign-in-button').onclick = function() {
-    gapi.auth2.getAuthInstance().signIn();
-  };
-  
-  document.getElementById('sign-out-button').onclick = function() {
-    gapi.auth2.getAuthInstance().signOut();
-  };
   
 });
