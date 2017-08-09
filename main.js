@@ -44,18 +44,8 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     console.log(basicProfile.getEmail());
   }
   
-  gapi.client.init({
-    discoveryDocs: DISCOVERY_DOCS,
-    clientId: CLIENT_ID,
-    scope: SCOPES,
-  }).then(function() {
-    document.body.classList.remove('loading');
-    // Listen for sign-in state changes.
-    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-    gapi.auth2.getAuthInstance().currentUser.listen(updateUser);
-    // Handle the initial sign-in state.
-    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-    updateUser(gapi.auth2.getAuthInstance().currentUser.get());
+  function getFolderTree() {
+    /*
     var gotAbout = gapi.client.drive.about.get({
       fields: [
         'user(displayName, photoLink, me, permissionId, emailAddress)',
@@ -65,6 +55,7 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
     }).then(function(response) {
       return response.result;
     });
+    */
     var gotRootId = gapi.client.drive.files.get({
       fileId: 'root',
       fields: 'id',
@@ -107,15 +98,47 @@ requirejs(['domReady!', 'gapi!auth2:client,drive-realtime'], function() {
       }
       return root;
     });
-    Promise.all([
-      gotAbout,
-      gotFolderTree,
-    ]).then(function(values) {
-      var about = values[0],
-          root = values[1];
-      console.log(about);
-      console.log(root);
+    return gotFolderTree;
+  }
+  
+  function listZips() {
+    var listElement = document.createElement('DIV');
+    gapi.client.drive.files.list({
+      pageSize: 1000,
+      fields: [
+        "nextPageToken",
+        "files(id, name, parents)",
+      ].join(', '),
+      orderBy: "modifiedTime desc",
+      q: [
+        "mimeType='application/zip'",
+        "mimeType='application/x-zip-compressed'",
+        "mimeType contains '+zip'",
+      ].join(' or '),
+    }).then(function(response) {
+      response.result.files.forEach(function(file) {
+        var link = document.createElement('A');
+        link.href = '#/' + file.id + '/';
+        link.innerText = file.name;
+        listElement.appendChild(link);
+      });
     });
+    document.body.appendChild(listElement);
+  }
+  
+  gapi.client.init({
+    discoveryDocs: DISCOVERY_DOCS,
+    clientId: CLIENT_ID,
+    scope: SCOPES,
+  }).then(function() {
+    document.body.classList.remove('loading');
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    gapi.auth2.getAuthInstance().currentUser.listen(updateUser);
+    // Handle the initial sign-in state.
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    updateUser(gapi.auth2.getAuthInstance().currentUser.get());
+    listZips();
   });
   
   /*
